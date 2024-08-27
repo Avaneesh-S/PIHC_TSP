@@ -15,19 +15,19 @@ long distD(int i,int j,float *x,float*y)
 }
 
 /* Initial solution construction using NN */
-long nn_init(int *route,long cities,float *posx,float*posy)
+long nn_init(int *route,long cities,float *posx,float*posy,int start_index)
 {
-	route[0]=0;
-	int k=1,i=0,j;
+	route[0]=start_index;
+	int k=1,i=start_index,j;
 	float min;
 	int minj,mini,count=1,flag=0;
 	long dst=0;
 	int *visited=(int*)calloc(cities,sizeof(int));
-	visited[0]=1;
+	visited[start_index]=1;
 	while(count!=cities)
 	{
 		flag=0;
-		for(j=1;j<cities;j++)
+		for(j=0;j<cities;j++)
 		{
 			if(i!=j && !visited[j])
 			{
@@ -168,14 +168,17 @@ int main(int argc, char *argv[])
 	fscanf(f, "%s", str);
 	if (strcmp(str, "EOF") != 0) {fprintf(stderr, "didn't see 'EOF' at end of file\n");  exit(-1);}
 
+	/*Calling NN algo for initial solution creation*/
 	start = clock();
-    dst = nn_init(r,cities,posx,posy);
+	int start_index=0;
+    dst = nn_init(r,cities,posx,posy,start_index);
     routeChecker(cities, r);
     setCoord(r,posx,posy,px,py,cities);
 
 	end = clock();
 	tm = ((double) (end - start)) / CLOCKS_PER_SEC;
 	printf("\ninitial cost : %ld time : %f\n",dst,tm);
+	/*end of NN algo*/
 
 	start1 = clock();
 	float cost=0,dist=dst;
