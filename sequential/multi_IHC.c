@@ -5,6 +5,7 @@
 #include"math.h"
 #include <ctype.h>
 #include <assert.h>
+#include <limits.h>
 
 /* Euclidean distance calculation */
 long distD(int i,int j,float *x,float*y)
@@ -168,7 +169,7 @@ int main(int argc, char *argv[])
 	fscanf(f, "%s", str);
 	if (strcmp(str, "EOF") != 0) {fprintf(stderr, "didn't see 'EOF' at end of file\n");  exit(-1);}
 
-	int dst_final=INT_MAX;
+	long int dst_final=INT_MAX;
 	int count_final;
 	int best_initial_dst;
 	double best_initial_time;
