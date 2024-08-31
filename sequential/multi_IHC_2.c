@@ -6,6 +6,9 @@
 #include <ctype.h>
 #include <assert.h>
 
+/*this code shows that starting from the least cost initial solution through NN and performing 2 opt only on the best initial solution 
+does not reach a better solution than multi_IHC.c or IHC.c*/
+
 /* Euclidean distance calculation */
 long distD(int i,int j,float *x,float*y)
 {
@@ -168,94 +171,94 @@ int main(int argc, char *argv[])
 	fscanf(f, "%s", str);
 	if (strcmp(str, "EOF") != 0) {fprintf(stderr, "didn't see 'EOF' at end of file\n");  exit(-1);}
 
-	int dst_final=INT_MAX;
-	int count_final;
-	int best_initial_dst;
+	// int dst_final=INT_MAX;
+	// int count_final;
+	int best_initial_dst=INT_MAX;
 	double best_initial_time;
 	int best_start_city;
-	start1 = clock();
+    int*best_initial_route = (int *)malloc(sizeof(int) * cities);
+
 	for(int start_index=0;start_index<cities;start_index++)
 	{
 		/*Calling NN algo for initial solution creation*/
 		start = clock();
 		dst = nn_init(r,cities,posx,posy,start_index);
 		routeChecker(cities, r);
-		setCoord(r,posx,posy,px,py,cities);
+		// setCoord(r,posx,posy,px,py,cities);
 
 		end = clock();
 		tm = ((double) (end - start)) / CLOCKS_PER_SEC;
-		// printf("\ninitial cost : %ld time : %f\n",dst,tm);
-		/*end of NN algo*/
 
-		int initial_dst=dst;
-		double initial_time=tm;
+        if(dst<best_initial_dst)
+        {
+            best_initial_dst=dst;
+            best_initial_time=tm;
+            best_start_city=start_index; 
+            best_initial_route=r;
+        }
 
-		// start1 = clock();
-		float cost=0,dist=dst;
-		float x=0,y=0;
-		register int change=0;
-		count=0;	
-		/*Iterative hill approch */
 
-		do{
-			cost=0;
-			dist=dst;
-			for(i=0;i<(cities-1);i++)
-			{	
-		
-				for(j = i+1; j < cities; j++)
-				{
-					cost = dist;			
-					change = distD(i,j,px,py) 
-					+ distD(i+1,(j+1)%cities,px,py) 
-					- distD(i,(i+1)%cities,px,py)
-					- distD(j,(j+1)%cities,px,py);
-					cost += change;	
-					if(cost < dst)
-					{
-						x = i;
-						y = j;
-						dst = cost;
-					}
-				}
-
-			}
-			if(dst<dist)
-			{
-				float *tmp_x,*tmp_y;
-				tmp_x=(float*)malloc(sizeof(float)*(y-x));	
-				tmp_y=(float*)malloc(sizeof(float)*(y-x));	
-				for(j=0,i=y;i>x;i--,j++)
-				{
-					tmp_x[j]=px[i];
-					tmp_y[j]=py[i];
-				}
-				for(j=0,i=x+1;i<=y;i++,j++)
-				{
-					px[i]=tmp_x[j];
-					py[i]=tmp_y[j];
-				}
-				free(tmp_x);
-				free(tmp_y);
-			}
-			count++;
-		}while(dst<dist);
-		if(dst<dst_final)
-		{
-			dst_final=dst;
-			count_final=count;
-			best_initial_dst=initial_dst;
-			best_initial_time=initial_time;
-			best_start_city=start_index;
-		}
 	}
+    setCoord(best_initial_route,posx,posy,px,py,cities);
+    
+    /*Iterative hill approch */
+    start1 = clock();
+    float cost=0,dist=best_initial_dst;
+    float x=0,y=0;
+    register int change=0;
+    count=0;
+
+    do{
+        cost=0;
+        dist=dst;
+        for(i=0;i<(cities-1);i++)
+        {	
+    
+            for(j = i+1; j < cities; j++)
+            {
+                cost = dist;			
+                change = distD(i,j,px,py) 
+                + distD(i+1,(j+1)%cities,px,py) 
+                - distD(i,(i+1)%cities,px,py)
+                - distD(j,(j+1)%cities,px,py);
+                cost += change;	
+                if(cost < dst)
+                {
+                    x = i;
+                    y = j;
+                    dst = cost;
+                }
+            }
+
+        }
+        if(dst<dist)
+        {
+            float *tmp_x,*tmp_y;
+            tmp_x=(float*)malloc(sizeof(float)*(y-x));	
+            tmp_y=(float*)malloc(sizeof(float)*(y-x));	
+            for(j=0,i=y;i>x;i--,j++)
+            {
+                tmp_x[j]=px[i];
+                tmp_y[j]=py[i];
+            }
+            for(j=0,i=x+1;i<=y;i++,j++)
+            {
+                px[i]=tmp_x[j];
+                py[i]=tmp_y[j];
+            }
+            free(tmp_x);
+            free(tmp_y);
+        }
+        count++;
+    }while(dst<dist);
+
 
 	printf("-------------------------------------------------------------------");
 	printf("\ninitial cost is %d",best_initial_dst);
 	printf("\ninital time is %f",best_initial_time);
 	printf("\ninitial start city is %d",best_start_city);
-	printf("\nMinimal distance found %ld\n",dst_final);
-	printf("\nnumber of times hill climbed in minimal distance solution %d\n",count_final);
+	printf("\nMinimal distance found %ld\n",dst);
+	printf("\nnumber of times hill climbed in minimal distance solution %d\n",count);
 	end1 = clock();
 	printf("\ntime : %f\n",((double) (end1 - start1)) / CLOCKS_PER_SEC);
 
