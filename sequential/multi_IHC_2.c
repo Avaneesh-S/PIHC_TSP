@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
             best_initial_dst=dst;
             best_initial_time=tm;
             best_start_city=start_index; 
-            best_initial_route=r;
+            memcpy(best_initial_route, r, sizeof(int) * cities);
         }
 
 
