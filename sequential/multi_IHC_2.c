@@ -202,10 +202,10 @@ int main(int argc, char *argv[])
 
 	}
 
-	for(int i=0;i<cities;i++)
-	{
-		printf("\n%d",best_initial_route[i]);
-	}
+	// for(int i=0;i<cities;i++)
+	// {
+	// 	printf("\n%d",best_initial_route[i]);
+	// }
 
     setCoord(best_initial_route,posx,posy,px,py,cities);
     

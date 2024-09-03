@@ -50,54 +50,57 @@ long distD(int i,int j,float *x,float*y)
 /* Initial solution construction using NN */
 __global__ void nn_init(int *route,long cities,float *posx,float*posy,int *visited,long *dst)
 {
-	int id = threadIdx.x;
-	dst[id]=0;
-	int start_index=id;
-	route[start_index*cities+0]=start_index;
-	int k=1,i=start_index,j;
-	float min;
-	int minj,mini,count=1,flag=0;
-	// long dst=0;
-	// int *visited=(int*)calloc(cities,sizeof(int));
-	visited[start_index*cities+start_index]=1;
-	while(count!=cities)
+	int id = threadIdx.x+blockIdx.x*blockDim.x;
+	if(id<cities)
 	{
-		flag=0;
-		for(j=0;j<cities;j++)
+		dst[id]=0;
+		int start_index=id;
+		route[start_index*cities+0]=start_index;
+		int k=1,i=start_index,j;
+		float min;
+		int minj,mini,count=1,flag=0;
+		// long dst=0;
+		// int *visited=(int*)calloc(cities,sizeof(int));
+		visited[start_index*cities+start_index]=1;
+		while(count!=cities)
 		{
-			if(i!=j && !visited[start_index*cities+j])
+			flag=0;
+			for(j=0;j<cities;j++)
 			{
-				min=GPU_distD(i,j,posx,posy);
-				minj=j;
-				break;	
-			}
-		}
-
-		for(j=minj+1;j<cities;j++)
-		{
-			
-			 if( !visited[start_index*cities+j])
-			{
-				if(min>GPU_distD(i,j,posx,posy))
+				if(i!=j && !visited[start_index*cities+j])
 				{
 					min=GPU_distD(i,j,posx,posy);
-					mini=j;
-					flag=1;				
+					minj=j;
+					break;	
 				}
 			}
+
+			for(j=minj+1;j<cities;j++)
+			{
+				
+				if( !visited[start_index*cities+j])
+				{
+					if(min>GPU_distD(i,j,posx,posy))
+					{
+						min=GPU_distD(i,j,posx,posy);
+						mini=j;
+						flag=1;				
+					}
+				}
+			}
+			if(flag==0)
+				i=minj;
+			else
+				i=mini;
+			dst[id]+=min;
+			route[start_index*cities+k++]=i;
+			visited[start_index*cities+i]=1;
+			count++;
 		}
-		if(flag==0)
-			i=minj;
-		else
-			i=mini;
-		dst[id]+=min;
-		route[start_index*cities+k++]=i;
-		visited[start_index*cities+i]=1;
-		count++;
+		// free(visited);
+		dst[id]+=GPU_distD(route[start_index*cities+0],route[start_index*cities+cities-1],posx,posy);
+		// routeChecker(cities, route);
 	}
-	// free(visited);
-	dst[id]+=GPU_distD(route[start_index*cities+0],route[start_index*cities+cities-1],posx,posy);
-	// routeChecker(cities, route);
 
 	
 }
@@ -130,6 +133,15 @@ long distH(float *px,float *py,long cit)
 	cost+=sqrtf( (dx*dx) + (dy*dy) );
 	return cost;
 
+}
+
+int minn(int a,int b)
+{
+	if(a<b)
+	{
+		return a;
+	}
+	return b;
 }
 
 int main(int argc, char *argv[])
@@ -191,11 +203,11 @@ int main(int argc, char *argv[])
 	// int best_start_city;
     // int*best_initial_route = (int *)malloc(sizeof(int) * cities);
 
-	if(cities>1000)
-	{
-		printf("too many cities, code does not support yet");
-		return 0;
-	}
+	// if(cities>1000)
+	// {
+	// 	printf("too many cities, code does not support yet");
+	// 	return 0;
+	// }
 
 	long *dst;
 	int *visited;
@@ -228,7 +240,7 @@ int main(int argc, char *argv[])
 	start = clock();
 	
 	/*Calling NN algo for initial solution creation*/
-	nn_init<<<1,cities>>>(r_device,cities,d_posx,d_posy,visited,dst);
+	nn_init<<<(cities/1024)+1,minn(cities,1024)>>>(r_device,cities,d_posx,d_posy,visited,dst);
 
 	end = clock();
 
