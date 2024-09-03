@@ -122,22 +122,29 @@ __global__ void tsp_tpn(float *pox,float *poy,long cost,unsigned long long *dst_
 /* At each IHC steps, XY coordinates are arranged using next initial solution's order*/
 void twoOpt(long x,long y,float *pox,float *poy)
 {
+	printf("entered 2 opt");
 	float *tmp_x,*tmp_y;
 	int i,j;
+	printf("aa ");
+	printf("\n size of y-x : %ld \n",(y-x));
 	tmp_x=(float*)malloc(sizeof(float)*(y-x));	
-	tmp_y=(float*)malloc(sizeof(float)*(y-x));	
+	tmp_y=(float*)malloc(sizeof(float)*(y-x));
+	printf("bb ");	
 	for(j=0,i=y;i>x;i--,j++)
 	{
 		tmp_x[j]=pox[i];
 		tmp_y[j]=poy[i];
 	}
+	printf("cc ");	
 	for(j=0,i=x+1;i<=y;i++,j++)
 	{
 		pox[i]=tmp_x[j];
 		poy[i]=tmp_y[j];
 	}
+	printf("dd ");	
 	free(tmp_x);
 	free(tmp_y);
+	printf("ee ");	
 
 }
 
@@ -1425,7 +1432,7 @@ int main(int argc, char *argv[])
 	switch(strat)
 	{
 		case 1:
-
+			printf("entered TPR");
 			if(cities<=1024)
 			{
 				blk=1;
@@ -1436,35 +1443,50 @@ int main(int argc, char *argv[])
 				blk=(cities-1)/1024+1;
 				thrd=1024;
 			}
+			printf("A");
 			
 			tsp_tpr<<<blk,thrd>>>(d_posx,d_posy,dst,d_dst_tid,cities);
+			printf("B");
 			
 			if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
 			printf("\nCan't transfer minimal cost back to CPU");
+
+			printf("C");
 
 			d = dtid >> 32;
 			
 			while( d < dst )
 			{
+				printf("D");
 				dst=d;
+				printf("E");
 				tid = dtid & ((1ull<<32)-1); 
+				printf("F");
 				x=cities-2-floor((sqrt(8*(sol-tid-1)+1)-1)/2);
+				printf("a");
 				y=tid-x*(cities-1)+(x*(x+1)/2)+1;
+				printf("b");
 				twoOpt(x,y,px,py);
+				printf("G");
 				if(cudaSuccess!=cudaMemcpy(d_posx,px,sizeof(float)*cities,cudaMemcpyHostToDevice))
 				printf("\nCan't transfer px on GPU");
+				printf("H");
 				if(cudaSuccess!=cudaMemcpy(d_posy,py,sizeof(float)*cities,cudaMemcpyHostToDevice))
 				printf("\nCan't transfer py on GPU");
+				printf("I");
 				unsigned long long dst_tid = (((long)dst+1) << 32) -1;
 				if(cudaSuccess!=cudaMemcpy(d_dst_tid,&dst_tid,sizeof(unsigned long long),cudaMemcpyHostToDevice))
 				printf("\nCan't transfer dst_tid on GPU");
-
+				printf("J");
 				tsp_tpr<<<blk,thrd>>>(d_posx,d_posy,dst,d_dst_tid,cities);
 				if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
 				printf("\nCan't transfer minimal cost back to CPU");
+				printf("K");
 			  	d = dtid >> 32;
 				count++;
+				printf("L");
 			}
+			printf("finished TPR");
 		break;
 		case 2:
 			

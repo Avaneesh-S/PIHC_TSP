@@ -11,6 +11,13 @@ may or may not reach a better solution than IHC.c (varies for instances - gives 
 instance size 100)*/
 
 /* Euclidean distance calculation */
+__device__ long GPU_distD(int i,int j,float *x,float*y)
+{
+	float dx=x[i]-x[j];
+	float dy=y[i]-y[j]; 
+	return(sqrtf( (dx*dx) + (dy*dy) ));
+}
+
 long distD(int i,int j,float *x,float*y)
 {
 	float dx=x[i]-x[j];
@@ -18,24 +25,49 @@ long distD(int i,int j,float *x,float*y)
 	return(sqrtf( (dx*dx) + (dy*dy) ));
 }
 
+// __device__ void routeChecker(long N,int *r)
+// {
+// 	int *v,i,flag=0;
+// 	v=(int*)calloc(N,sizeof(int));	
+
+// 	for(i=0;i<N;i++)
+// 		v[r[i]]++;
+// 	for(i=0;i<N;i++)
+// 	{
+// 		if(v[i] != 1 )
+// 		{
+// 			flag=1;
+// 			printf("breaking at %d",i);
+// 			break;
+// 		}
+// 	}
+// 	if(flag==1)
+// 		printf("\nroute is not valid");
+// 	// else
+// 	// 	printf("\nroute is valid");
+// }
+
 /* Initial solution construction using NN */
-long nn_init(int *route,long cities,float *posx,float*posy,int start_index)
+__global__ void nn_init(int *route,long cities,float *posx,float*posy,int *visited,long *dst)
 {
-	route[0]=start_index;
+	int id = threadIdx.x;
+	dst[id]=0;
+	int start_index=id;
+	route[start_index*cities+0]=start_index;
 	int k=1,i=start_index,j;
 	float min;
 	int minj,mini,count=1,flag=0;
-	long dst=0;
-	int *visited=(int*)calloc(cities,sizeof(int));
-	visited[start_index]=1;
+	// long dst=0;
+	// int *visited=(int*)calloc(cities,sizeof(int));
+	visited[start_index*cities+start_index]=1;
 	while(count!=cities)
 	{
 		flag=0;
 		for(j=0;j<cities;j++)
 		{
-			if(i!=j && !visited[j])
+			if(i!=j && !visited[start_index*cities+j])
 			{
-				min=distD(i,j,posx,posy);
+				min=GPU_distD(i,j,posx,posy);
 				minj=j;
 				break;	
 			}
@@ -44,11 +76,11 @@ long nn_init(int *route,long cities,float *posx,float*posy,int start_index)
 		for(j=minj+1;j<cities;j++)
 		{
 			
-			 if( !visited[j])
+			 if( !visited[start_index*cities+j])
 			{
-				if(min>distD(i,j,posx,posy))
+				if(min>GPU_distD(i,j,posx,posy))
 				{
-					min=distD(i,j,posx,posy);
+					min=GPU_distD(i,j,posx,posy);
 					mini=j;
 					flag=1;				
 				}
@@ -58,36 +90,16 @@ long nn_init(int *route,long cities,float *posx,float*posy,int start_index)
 			i=minj;
 		else
 			i=mini;
-		dst+=min;
-		route[k++]=i;
-		visited[i]=1;
+		dst[id]+=min;
+		route[start_index*cities+k++]=i;
+		visited[start_index*cities+i]=1;
 		count++;
 	}
-	free(visited);
-	dst+=distD(route[0],route[cities-1],posx,posy);
-	return dst;
-}
+	// free(visited);
+	dst[id]+=GPU_distD(route[start_index*cities+0],route[start_index*cities+cities-1],posx,posy);
+	// routeChecker(cities, route);
 
-void routeChecker(long N,int *r)
-{
-	int *v,i,flag=0;
-	v=(int*)calloc(N,sizeof(int));	
-
-	for(i=0;i<N;i++)
-		v[r[i]]++;
-	for(i=0;i<N;i++)
-	{
-		if(v[i] != 1 )
-		{
-			flag=1;
-			printf("breaking at %d",i);
-			break;
-		}
-	}
-	if(flag==1)
-		printf("\nroute is not valid");
-	// else
-	// 	printf("\nroute is valid");
+	
 }
 
 
@@ -129,7 +141,7 @@ int main(int argc, char *argv[])
 	float *px, *py,tm;
 	char str[256];  
 	int *r;
-	long dst,sol,d,cities,no_pairs,tid=0;
+	long sol,d,cities,no_pairs,tid=0;
 	int i,j,intl,count;
 	
 	clock_t start,end,start1,end1;
@@ -174,52 +186,94 @@ int main(int argc, char *argv[])
 
 	// int dst_final=INT_MAX;
 	// int count_final;
-	int best_initial_dst=INT_MAX;
-	double best_initial_time;
-	int best_start_city;
-    int*best_initial_route = (int *)malloc(sizeof(int) * cities);
+	// int best_initial_dst=INT_MAX;
+	// double best_initial_time;
+	// int best_start_city;
+    // int*best_initial_route = (int *)malloc(sizeof(int) * cities);
 
-	for(int start_index=0;start_index<cities;start_index++)
+	if(cities>1000)
 	{
-		/*Calling NN algo for initial solution creation*/
-		start = clock();
-		dst = nn_init(r,cities,posx,posy,start_index);
-		// printf("\nindex : %d , value at index : %ld",start_index,dst);
-		// routeChecker(cities, r);
-		// setCoord(r,posx,posy,px,py,cities);
-
-		end = clock();
-		tm = ((double) (end - start)) / CLOCKS_PER_SEC;
-
-        if(dst<best_initial_dst)
-        {
-            best_initial_dst=dst;
-            best_initial_time=tm;
-            best_start_city=start_index; 
-            best_initial_route=r;
-        }
-
-
+		printf("too many cities, code does not support yet");
+		return 0;
 	}
+
+	long *dst;
+	int *visited;
+	long *dst_host;
+	int *r_device;
+
+	if(cudaSuccess!=cudaMalloc((void**)&dst,sizeof(long)*cities))
+	printf("\nCan't allocate memory for dst in device");
+
+	dst_host=(long*)malloc(sizeof(long)*(cities));	
+
+	if(cudaSuccess!=cudaMalloc((void**)&visited,sizeof(int)*(cities*cities)))
+	printf("\nCan't allocate memory for visited in device");
+
+	if(cudaSuccess!=cudaMalloc((void**)&r_device,sizeof(int)*(cities*cities)))
+	printf("\nCan't allocate memory for r i.e route in device");
+
+	float *d_posx, *d_posy;
+
+	if(cudaSuccess!=cudaMalloc((void**)&d_posx,sizeof(float)*cities))
+	printf("\nCan't allocate memory for coordinate x on GPU");
+	if(cudaSuccess!=cudaMalloc((void**)&d_posy,sizeof(float)*cities))
+	printf("\nCan't allocate memory for coordinate y on GPU");
+
+	if(cudaSuccess!=cudaMemcpy(d_posx,posx,sizeof(float)*cities,cudaMemcpyHostToDevice))
+	printf("\nCan't transfer px on GPU");
+	if(cudaSuccess!=cudaMemcpy(d_posy,posy,sizeof(float)*cities,cudaMemcpyHostToDevice))
+	printf("\nCan't transfer py on GPU");
+
+	start = clock();
+	
+	/*Calling NN algo for initial solution creation*/
+	nn_init<<<1,cities>>>(r_device,cities,d_posx,d_posy,visited,dst);
+
+	end = clock();
+
+	if(cudaSuccess!=cudaMemcpy(dst_host,dst,sizeof(long)*cities,cudaMemcpyDeviceToHost))
+	printf("\nCan't transfer dst values back to CPU");
+
+	tm = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+	long best_initial_dst=INT_MAX;
+	int best_start_city;
 
 	for(int i=0;i<cities;i++)
 	{
-		printf("\n%d",best_initial_route[i]);
+		// printf("\nindex : %d , value at index : %ld",i,dst_host[i]);
+		if(dst_host[i]<best_initial_dst)
+		{
+			best_initial_dst=dst_host[i];
+			best_start_city=i;
+		}
 	}
 
-    setCoord(best_initial_route,posx,posy,px,py,cities);
+	int *req_r=r_device+best_start_city*cities; //move only the route which corresponds to minimum initial dst
+
+	if(cudaSuccess!=cudaMemcpy(r,req_r,sizeof(int)*cities,cudaMemcpyDeviceToHost))
+	printf("\nCan't transfer best route values back to CPU");
+
+	// for(int i=0;i<cities;i++)
+	// {
+	// 	printf("\n%d",r[i]);
+	// }
+
+    setCoord(r,posx,posy,px,py,cities);
     
     /*Iterative hill approch */
     start1 = clock();
-	dst=best_initial_dst;
-    float cost=0,dist=best_initial_dst;
+	long dist=best_initial_dst;
+	long dst2=best_initial_dst;
+    float cost=0;
     float x=0,y=0;
     register int change=0;
     count=0;
 
     do{
         cost=0;
-        dist=dst;
+        dist=dst2;
         for(i=0;i<(cities-1);i++)
         {	
     
@@ -231,16 +285,16 @@ int main(int argc, char *argv[])
                 - distD(i,(i+1)%cities,px,py)
                 - distD(j,(j+1)%cities,px,py);
                 cost += change;	
-                if(cost < dst)
+                if(cost < dst2)
                 {
                     x = i;
                     y = j;
-                    dst = cost;
+                    dst2 = cost;
                 }
             }
 
         }
-        if(dst<dist)
+        if(dst2<dist)
         {
             float *tmp_x,*tmp_y;
             tmp_x=(float*)malloc(sizeof(float)*(y-x));	
@@ -259,20 +313,28 @@ int main(int argc, char *argv[])
             free(tmp_y);
         }
         count++;
-    }while(dst<dist);
+    }while(dst2<dist);
 
 
-	printf("-------------------------------------------------------------------");
+	printf("\n-------------------------------------------------------------------");
 	printf("\nleast initial cost is %d",best_initial_dst);
-	printf("\ninital time is %f",best_initial_time);
+	printf("\ntime taken is %f",tm);
 	printf("\ninitial start city is %d",best_start_city);
-	printf("\nMinimal distance found %ld\n",dst);
+	printf("\nMinimal distance found %ld\n",dst2);
 	printf("\nnumber of times hill climbed in minimal distance solution %d\n",count);
 	end1 = clock();
 	printf("\ntime : %f\n",((double) (end1 - start1)) / CLOCKS_PER_SEC);
 
 	free(posx);
 	free(posy);
-	free(best_initial_route);
+
+	free(dst_host);
+
+	cudaFree(d_posx);
+	cudaFree(d_posy);
+	cudaFree(dst);
+	cudaFree(visited);
+	cudaFree(r_device);
 	return 0;
 }
+
