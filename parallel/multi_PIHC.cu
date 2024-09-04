@@ -209,6 +209,12 @@ int main(int argc, char *argv[])
 	// 	return 0;
 	// }
 
+	if(cities<1)
+	{
+		printf("too less cities");
+		return 0;
+	}
+
 	long *dst;
 	int *visited;
 	long *dst_host;
@@ -240,7 +246,7 @@ int main(int argc, char *argv[])
 	start = clock();
 	
 	/*Calling NN algo for initial solution creation*/
-	nn_init<<<(cities/1024)+1,minn(cities,1024)>>>(r_device,cities,d_posx,d_posy,visited,dst);
+	nn_init<<<(cities-1/1024)+1,minn(cities,1024)>>>(r_device,cities,d_posx,d_posy,visited,dst);
 
 	end = clock();
 
