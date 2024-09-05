@@ -375,10 +375,10 @@ int main(int argc, char *argv[])
 	/*Calling NN algo for initial solution creation*/
 	nn_init<<<(cities-1/1024)+1,minn(cities,1024)>>>(r_device,cities,d_posx,d_posy,visited,dst);
 
-	end = clock();
-
 	if(cudaSuccess!=cudaMemcpy(dst_host,dst,sizeof(long)*cities,cudaMemcpyDeviceToHost))
 	printf("\nCan't transfer dst values back to CPU");
+
+	end = clock();
 
 	tm = ((double) (end - start)) / CLOCKS_PER_SEC;
 
@@ -665,7 +665,7 @@ int main(int argc, char *argv[])
 
 	printf("\n-------------------------------------------------------------------");
 	printf("\nleast initial cost is %d",best_initial_dst);
-	printf("\ntime taken is %f",tm);
+	printf("\nInitial solution time taken is %f",tm);
 	printf("\ninitial start city is %d",best_start_city);
 	printf("\nMinimal distance found %ld\n",dst2);
 	printf("\nnumber of times hill climbed in minimal distance solution %d\n",count);
