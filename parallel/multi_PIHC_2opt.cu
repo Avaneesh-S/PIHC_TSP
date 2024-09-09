@@ -331,6 +331,8 @@ int main(int argc, char *argv[])
     setCoord<<<(cities-1/1024)+1,minn(cities,1024)>>>(r_device,d_posx,d_posy,d_px,d_py,cities);
 	cudaDeviceSynchronize();
 
+	printf("initial solution part done")
+
 	int blk,thrd;
 	// unsigned long long *d_dst_tid;
 	// long dst2=best_initial_dst;
