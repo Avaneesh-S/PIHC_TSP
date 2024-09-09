@@ -402,7 +402,7 @@ int main(int argc, char *argv[])
 		{
 			tid[itr] = dtid[itr] & ((1ull<<32)-1);
 			x[itr]=cities-2-floor((sqrt(8*(sol-tid[itr]-1)+1)-1)/2);
-			y=tid-x[itr]*(cities-1)+(x[itr]*(x[itr]+1)/2)+1;
+			y[itr]=tid[itr]-x[itr]*(cities-1)+(x[itr]*(x[itr]+1)/2)+1;
 			twoOpt(x[itr],y[itr],px,py);
 			if(cudaSuccess!=cudaMemcpy(d_px+(itr*cities),px,sizeof(float)*cities,cudaMemcpyHostToDevice))
 			printf("\nCan't transfer px on GPU");
