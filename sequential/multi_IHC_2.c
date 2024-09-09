@@ -178,29 +178,31 @@ int main(int argc, char *argv[])
 	double best_initial_time;
 	int best_start_city;
     int*best_initial_route = (int *)malloc(sizeof(int) * cities);
-
-	for(int start_index=0;start_index<cities;start_index++)
+	start = clock();
+	for(int start_index=0;start_index<cities;start_index=start_index+2)
 	{
 		/*Calling NN algo for initial solution creation*/
-		start = clock();
+		
 		dst = nn_init(r,cities,posx,posy,start_index);
 		// printf("\nindex : %d , value at index : %ld",start_index,dst);
 		// routeChecker(cities, r);
 		// setCoord(r,posx,posy,px,py,cities);
 
-		end = clock();
-		tm = ((double) (end - start)) / CLOCKS_PER_SEC;
+		
+		
 
         if(dst<best_initial_dst)
         {
             best_initial_dst=dst;
-            best_initial_time=tm;
             best_start_city=start_index; 
             memcpy(best_initial_route, r, sizeof(int) * cities);
         }
 
 
 	}
+	end = clock();
+	tm = ((double) (end - start)) / CLOCKS_PER_SEC;
+	best_initial_time=tm;
 
 	// for(int i=0;i<cities;i++)
 	// {
