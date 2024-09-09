@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
 	unsigned long long *dtid=(unsigned long long*)malloc(sizeof(unsigned long long)*(cities));
 	long *tid=(long*)malloc(sizeof(long)*(cities));	
 	long *d=(long*)malloc(sizeof(long)*(cities));
-	int min_d=LONG_MAX;
+	long min_d=LONG_MAX;
 
 
 	// if(cudaSuccess!=cudaMalloc((void**)&d_dst_tid,sizeof(unsigned long long)))
