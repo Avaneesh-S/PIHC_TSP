@@ -404,16 +404,16 @@ int main(int argc, char *argv[])
 			x[itr]=cities-2-floor((sqrt(8*(sol-tid[itr]-1)+1)-1)/2);
 			y=tid-x[itr]*(cities-1)+(x[itr]*(x[itr]+1)/2)+1;
 			twoOpt(x[itr],y[itr],px,py);
-			if(cudaSuccess!=cudaMemcpy(d_posx,px,sizeof(float)*cities,cudaMemcpyHostToDevice))
+			if(cudaSuccess!=cudaMemcpy(d_px+(itr*cities),px,sizeof(float)*cities,cudaMemcpyHostToDevice))
 			printf("\nCan't transfer px on GPU");
-			if(cudaSuccess!=cudaMemcpy(d_posy,py,sizeof(float)*cities,cudaMemcpyHostToDevice))
+			if(cudaSuccess!=cudaMemcpy(d_py+(itr*cities),py,sizeof(float)*cities,cudaMemcpyHostToDevice))
 			printf("\nCan't transfer py on GPU");
 			// unsigned long long dst_tid = (((long)least_dst+1) << 32) -1;
 			// if(cudaSuccess!=cudaMemcpy(d_dst_tid[itr],&dst_tid,sizeof(unsigned long long),cudaMemcpyHostToDevice))
 			// printf("\nCan't transfer dst_tid on GPU");
 		} 
 
-		tsp_tpr<<<blk,thrd>>>(d_posx,d_posy,dst,d_dst_tid,cities);
+		tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
 
 		if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
 		printf("\nCan't transfer minimal dtid to CPU");
