@@ -153,18 +153,18 @@ __global__ void tsp_tpr(float *pox,float *poy,long *initcost,unsigned long long 
 	long id,j;
 	long i=threadIdx.x+blockIdx.x*blockDim.x;
 	register long change,mincost=initcost[i%cit],cost;
-	if(i < cit)
+	if(i < cit*cit)
 	{
 		
-		for(j=i+1;j<cit;j++)
+		for(j=i+1;j<i+cit;j++)
 		{
 			change = 0; cost=initcost[i%cit];
-			change=distD(i,j,pox,poy)+distD((i+1)%cit,(j+1)%cit,pox,poy)-distD(i,(i+1)%cit,pox,poy)-distD(j,(j+1)%cit,pox,poy);
+			change=distD(i,j,pox,poy)+distD((i+1)%(cit*cit),(j+1)%(cit*cit),pox,poy)-distD(i,(i+1)%(cit*cit),pox,poy)-distD(j,(j+1)%(cit*cit),pox,poy);
 			cost+=change;	
 			if(cost < mincost)
 			{
 				mincost = cost;
-				id = i * (cit-1)+(j-1)-i*(i+1)/2;	
+				id = i * (cit*cit-1)+(j-1)-i*(i+1)/2;	
 			}	 
 
 		}
@@ -375,10 +375,16 @@ int main(int argc, char *argv[])
 	// printf("\nCan't transfer py on GPU");
 
 
-
-	
 	blk=((cities-1)/1024+1)*cities;
-	thrd=1024;
+	if(cities<1024)
+	{
+		thrd=cities;
+	}
+	else{
+		thrd=1024;
+	}
+	
+	
 	
 	
 	tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
