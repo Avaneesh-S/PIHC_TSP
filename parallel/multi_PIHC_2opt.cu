@@ -6,9 +6,8 @@
 #include <ctype.h>
 #include <assert.h>
 
-/*this code shows that starting from the least cost initial solution through NN and performing 2 opt only on the best initial solution 
-may or may not reach a better solution than IHC.c (varies for instances - gives improvement for 300 and 1000 instances, but not for
-instance size 100)*/
+/*code to perform 2opt on every initial solution, that is construct initial solution with every city as start city and run 2 opt on 
+all in parallel*/
 
 /* Euclidean distance calculation */
 __host__ __device__ long distD(int i,int j,float *x,float*y)
@@ -153,13 +152,13 @@ __global__ void tsp_tpr(float *pox,float *poy,long *initcost,unsigned long long 
 	long id,j;
 	long i=threadIdx.x+blockIdx.x*blockDim.x;
 	register long change,mincost=initcost[i%cit],cost;
-	if(i < cit*cit)
+	if(i < cit*(cit-1))
 	{
 		
-		for(j=i+1;j<i+cit;j++)
+		for(j=i+1;j<(((i/cit)*cit)+cit);j++)
 		{
 			change = 0; cost=initcost[i%cit];
-			change=distD(i,j,pox,poy)+distD((i+1)%(cit*cit),(j+1)%(cit*cit),pox,poy)-distD(i,(i+1)%(cit*cit),pox,poy)-distD(j,(j+1)%(cit*cit),pox,poy);
+			change=distD(i,j,pox,poy)+distD((i+1)%(cit*(cit-1)),(j+1)%(cit*(cit-1)),pox,poy)-distD(i,(i+1)%(cit*(cit-1)),pox,poy)-distD(j,(j+1)%(cit*(cit-1)),pox,poy);
 			cost+=change;	
 			if(cost < mincost)
 			{
@@ -169,7 +168,7 @@ __global__ void tsp_tpr(float *pox,float *poy,long *initcost,unsigned long long 
 
 		}
 		if(mincost < initcost[i%cit])
-			 atomicMin(dst_tid, ((unsigned long long)mincost << 32) | id);
+			 atomicMin(dst_tid+(i%cit), ((unsigned long long)mincost << 32) | id);
 
 	}
 	
@@ -228,8 +227,8 @@ int main(int argc, char *argv[])
 	sol=cities*(cities-1)/2;
 	posx = (float *)malloc(sizeof(float) * cities);  if (posx == NULL) {fprintf(stderr, "cannot allocate posx\n");  exit(-1);}
 	posy = (float *)malloc(sizeof(float) * cities);  if (posy == NULL) {fprintf(stderr, "cannot allocate posy\n");  exit(-1);}
-	px = (float *)malloc(sizeof(float) * cities);  if (px == NULL) {fprintf(stderr, "cannot allocate posx\n");  exit(-1);}
-	py = (float *)malloc(sizeof(float) * cities);  if (py == NULL) {fprintf(stderr, "cannot allocate posy\n");  exit(-1);}
+	px = (float *)malloc(sizeof(float) * (cities*cities));  if (px == NULL) {fprintf(stderr, "cannot allocate posx\n");  exit(-1);}
+	py = (float *)malloc(sizeof(float) * (cities*cities));  if (py == NULL) {fprintf(stderr, "cannot allocate posy\n");  exit(-1);}
 	
 	r = (int *)malloc(sizeof(int) * cities);
 	ch = getc(f);  while ((ch != EOF) && (ch != '\n')) ch = getc(f);
@@ -329,7 +328,12 @@ int main(int argc, char *argv[])
 	// printf("\nCan't transfer best route values back to CPU");
 
     setCoord<<<(cities-1/1024)+1,minn(cities,1024)>>>(r_device,d_posx,d_posy,d_px,d_py,cities);
-	cudaDeviceSynchronize();
+
+	if(cudaSuccess!=cudaMemcpy(px,d_px,sizeof(float)*cities*cities,cudaMemcpyDeviceToHost))
+	printf("\nCan't transfer px values back to CPU");
+
+	if(cudaSuccess!=cudaMemcpy(py,d_py,sizeof(float)*cities*cities,cudaMemcpyDeviceToHost))
+	printf("\nCan't transfer py values back to CPU");
 
 	printf("initial solution part done");
 
@@ -376,9 +380,9 @@ int main(int argc, char *argv[])
 
 
 	blk=((cities-1)/1024+1)*cities;
-	if(cities<1024)
+	if(cities*(cities-1)<1024)
 	{
-		thrd=cities;
+		thrd=cities*(cities-1);
 	}
 	else{
 		thrd=1024;
@@ -411,10 +415,10 @@ int main(int argc, char *argv[])
 			tid[itr] = dtid[itr] & ((1ull<<32)-1);
 			x[itr]=cities-2-floor((sqrt(8*(sol-tid[itr]-1)+1)-1)/2);
 			y[itr]=tid[itr]-x[itr]*(cities-1)+(x[itr]*(x[itr]+1)/2)+1;
-			twoOpt(x[itr],y[itr],px,py);
-			if(cudaSuccess!=cudaMemcpy(d_px+(itr*cities),px,sizeof(float)*cities,cudaMemcpyHostToDevice))
+			twoOpt(x[itr],y[itr],px+(cities*itr),py+(cities*itr));
+			if(cudaSuccess!=cudaMemcpy(d_px+(itr*cities),px+(cities*itr),sizeof(float)*cities,cudaMemcpyHostToDevice))
 			printf("\nCan't transfer px on GPU");
-			if(cudaSuccess!=cudaMemcpy(d_py+(itr*cities),py,sizeof(float)*cities,cudaMemcpyHostToDevice))
+			if(cudaSuccess!=cudaMemcpy(d_py+(itr*cities),py+(cities*itr),sizeof(float)*cities,cudaMemcpyHostToDevice))
 			printf("\nCan't transfer py on GPU");
 			// unsigned long long dst_tid = (((long)least_dst+1) << 32) -1;
 			// if(cudaSuccess!=cudaMemcpy(d_dst_tid[itr],&dst_tid,sizeof(unsigned long long),cudaMemcpyHostToDevice))
