@@ -329,10 +329,10 @@ int main(int argc, char *argv[])
 
     setCoord<<<(cities-1/1024)+1,minn(cities,1024)>>>(r_device,d_posx,d_posy,d_px,d_py,cities);
 
-	if(cudaSuccess!=cudaMemcpy(px,d_px,sizeof(float)*cities*cities,cudaMemcpyDeviceToHost))
+	if(cudaSuccess!=cudaMemcpy(px,d_px,sizeof(float)*(cities*cities),cudaMemcpyDeviceToHost))
 	printf("\nCan't transfer px values back to CPU");
 
-	if(cudaSuccess!=cudaMemcpy(py,d_py,sizeof(float)*cities*cities,cudaMemcpyDeviceToHost))
+	if(cudaSuccess!=cudaMemcpy(py,d_py,sizeof(float)*(cities*cities),cudaMemcpyDeviceToHost))
 	printf("\nCan't transfer py values back to CPU");
 
 	printf("initial solution part done");
