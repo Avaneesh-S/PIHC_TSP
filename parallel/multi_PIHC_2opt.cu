@@ -325,6 +325,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	printf("NN running complete");
+
 	// int *req_r=r_device+best_start_city*cities; //move only the route which corresponds to minimum initial dst
 
 	// if(cudaSuccess!=cudaMemcpy(r,req_r,sizeof(int)*cities,cudaMemcpyDeviceToHost))
