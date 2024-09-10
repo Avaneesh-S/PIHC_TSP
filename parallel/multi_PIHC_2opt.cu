@@ -110,11 +110,14 @@ __global__ void nn_init(int *route,long cities,float *posx,float*posy,int *visit
 __global__ void setCoord(int *r,float *posx,float *posy,float *px,float *py,long cities)
 {
 	int id= threadIdx.x+blockIdx.x*blockDim.x;
-	int i;
-	for(i=id*cities;i<id*cities+cities;i++)
+	if(id<cities)
 	{
-		px[i]=posx[r[i]-(id*cities)];
-		py[i]=posy[r[i]-(id*cities)];
+		int i;
+		for(i=id*cities;i<id*cities+cities;i++)
+		{
+			px[i]=posx[r[i]];
+			py[i]=posy[r[i]];
+		}
 	}
 }
 
