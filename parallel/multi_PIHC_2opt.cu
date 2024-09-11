@@ -325,7 +325,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	printf("\nNN running complete");
 	free(posx);
 	free(posy);
 
@@ -343,8 +342,6 @@ int main(int argc, char *argv[])
 
 	if(cudaSuccess!=cudaMemcpy(py,d_py,sizeof(float)*(cities*cities),cudaMemcpyDeviceToHost))
 	printf("\nCan't transfer py values back to CPU");
-
-	printf("\ninitial solution part done");
 
 	int blk,thrd;
 	// unsigned long long *d_dst_tid;
@@ -387,8 +384,6 @@ int main(int argc, char *argv[])
 	if(cudaSuccess!=cudaMemcpy(dtid,d_dst_tid,sizeof(unsigned long long)*cities,cudaMemcpyDeviceToHost))
 	printf("\nCan't transfer minimal dtid to CPU");
 
-	printf("\ntpr finished running");
-
 	for(int itr=0;itr<cities;itr++)
 	{
 		d[itr] = dtid[itr] >> 32;
@@ -398,7 +393,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	printf("\n first tpr call complete moved min d");
 	long *x=(long*)malloc(sizeof(long)*(cities));
 	long *y=(long*)malloc(sizeof(long)*(cities));
 	
@@ -411,14 +405,14 @@ int main(int argc, char *argv[])
 			tid[itr] = dtid[itr] & ((1ull<<32)-1);
 			x[itr]=cities-2-floor((sqrt(8*(sol-tid[itr]-1)+1)-1)/2);
 			y[itr]=tid[itr]-x[itr]*(cities-1)+(x[itr]*(x[itr]+1)/2)+1;
-			twoOpt(x[itr],y[itr],px+(cities*itr),py+(cities*itr));
-			if(cudaSuccess!=cudaMemcpy(d_px+(itr*cities),px+(cities*itr),sizeof(float)*cities,cudaMemcpyHostToDevice))
-			printf("\nCan't transfer px on GPU");
-			if(cudaSuccess!=cudaMemcpy(d_py+(itr*cities),py+(cities*itr),sizeof(float)*cities,cudaMemcpyHostToDevice))
-			printf("\nCan't transfer py on GPU");
-			// unsigned long long dst_tid = (((long)least_dst+1) << 32) -1;
-			// if(cudaSuccess!=cudaMemcpy(d_dst_tid[itr],&dst_tid,sizeof(unsigned long long),cudaMemcpyHostToDevice))
-			// printf("\nCan't transfer dst_tid on GPU");
+			if(x[itr]>0 && y[itr]>0 && y[itr]-x[itr]>0)
+			{
+				twoOpt(x[itr],y[itr],px+(cities*itr),py+(cities*itr));
+				if(cudaSuccess!=cudaMemcpy(d_px+(itr*cities),px+(cities*itr),sizeof(float)*cities,cudaMemcpyHostToDevice))
+				printf("\nCan't transfer px on GPU");
+				if(cudaSuccess!=cudaMemcpy(d_py+(itr*cities),py+(cities*itr),sizeof(float)*cities,cudaMemcpyHostToDevice))
+				printf("\nCan't transfer py on GPU");
+			}
 		} 
 
 		tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
