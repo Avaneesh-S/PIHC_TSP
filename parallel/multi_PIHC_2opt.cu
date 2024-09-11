@@ -475,6 +475,14 @@ int main(int argc, char *argv[])
 	// cudaFree(d_dst_tid);
 	// cudaFree(d_px);
 	// cudaFree(d_py);
+	cudaFree(d_posy);
+	cudaFree(d_posx);
+	cudaFree(d_dst_tid);
+	free(posx);
+	free(posy);
+	free(px);
+	free(py);
+	free(r_device);
 	return 0;
 }
 
