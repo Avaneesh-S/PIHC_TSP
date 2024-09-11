@@ -390,22 +390,22 @@ int main(int argc, char *argv[])
 	
 	
 	
-	tsp_tpr<<<1,10>>>(d_px,d_py,dst,d_dst_tid,cities);
+	tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
 	
 	if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
 	printf("\nCan't transfer minimal dtid to CPU");
 
 	printf("\n tpr finished running");
 
-	for(int itr=0;itr<cities;itr++)
-	{
-		d[itr] = dtid[itr] >> 32;
-		// printf("\n %llu",d[itr]);
-		// if(d[itr]<min_d)
-		// {
-		// 	min_d=d[itr];
-		// }
-	}
+	// for(int itr=0;itr<10;itr++)
+	// {
+	// 	d[itr] = dtid[itr] >> 32;
+	// 	// printf("\n %llu",d[itr]);
+	// 	// if(d[itr]<min_d)
+	// 	// {
+	// 	// 	min_d=d[itr];
+	// 	// }
+	// }
 
 	printf("\n first tpr call complete moved min d");
 	
