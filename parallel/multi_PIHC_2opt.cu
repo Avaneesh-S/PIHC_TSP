@@ -390,7 +390,7 @@ int main(int argc, char *argv[])
 	
 	
 	
-	tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
+	tsp_tpr<<<1,1>>>(d_px,d_py,dst,d_dst_tid,cities);
 	
 	if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
 	printf("\nCan't transfer minimal dtid to CPU");
