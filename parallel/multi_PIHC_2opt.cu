@@ -157,16 +157,16 @@ __global__ void tsp_tpr(float *pox,float *poy,long *initcost,unsigned long long 
 	register long change,mincost=initcost[i%cit],cost;
 	if(i < cit*(cit-1))
 	{
-		
-		for(j=i+1;j<(((i/cit)*cit)+cit);j++)
+		long limit = ((long)(i/cit)*cit)+cit;
+		for(j=i+1;j<limit;j++)
 		{
 			change = 0; cost=initcost[i%cit];
-			change=distD(i,j,pox,poy)+distD((i+1)%(cit*(cit-1)),(j+1)%(cit*(cit-1)),pox,poy)-distD(i,(i+1)%(cit*(cit-1)),pox,poy)-distD(j,(j+1)%(cit*(cit-1)),pox,poy);
+			change=distD(i,j,pox,poy)+distD((i+1)%(cit*cit),(j+1)%(cit*cit),pox,poy)-distD(i,(i+1)%(cit*cit),pox,poy)-distD(j,(j+1)%(cit*cit),pox,poy);
 			cost+=change;	
 			if(cost < mincost)
 			{
 				mincost = cost;
-				id = i * (cit*cit-1)+(j-1)-i*(i+1)/2;	
+				id = i * (cit-1)+(j-1)-i*(i+1)/2;	
 			}	 
 
 		}
