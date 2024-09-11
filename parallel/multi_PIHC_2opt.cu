@@ -327,135 +327,135 @@ int main(int argc, char *argv[])
 
 	printf("NN running complete");
 
-	// int *req_r=r_device+best_start_city*cities; //move only the route which corresponds to minimum initial dst
+	// // int *req_r=r_device+best_start_city*cities; //move only the route which corresponds to minimum initial dst
 
-	// if(cudaSuccess!=cudaMemcpy(r,req_r,sizeof(int)*cities,cudaMemcpyDeviceToHost))
-	// printf("\nCan't transfer best route values back to CPU");
+	// // if(cudaSuccess!=cudaMemcpy(r,req_r,sizeof(int)*cities,cudaMemcpyDeviceToHost))
+	// // printf("\nCan't transfer best route values back to CPU");
 
-    setCoord<<<(cities-1/1024)+1,minn(cities,1024)>>>(r_device,d_posx,d_posy,d_px,d_py,cities);
+    // setCoord<<<(cities-1/1024)+1,minn(cities,1024)>>>(r_device,d_posx,d_posy,d_px,d_py,cities);
 
-	if(cudaSuccess!=cudaMemcpy(px,d_px,sizeof(float)*(cities*cities),cudaMemcpyDeviceToHost))
-	printf("\nCan't transfer px values back to CPU");
+	// if(cudaSuccess!=cudaMemcpy(px,d_px,sizeof(float)*(cities*cities),cudaMemcpyDeviceToHost))
+	// printf("\nCan't transfer px values back to CPU");
 
-	if(cudaSuccess!=cudaMemcpy(py,d_py,sizeof(float)*(cities*cities),cudaMemcpyDeviceToHost))
-	printf("\nCan't transfer py values back to CPU");
+	// if(cudaSuccess!=cudaMemcpy(py,d_py,sizeof(float)*(cities*cities),cudaMemcpyDeviceToHost))
+	// printf("\nCan't transfer py values back to CPU");
 
-	printf("initial solution part done");
+	// printf("initial solution part done");
 
-	int blk,thrd;
-	// unsigned long long *d_dst_tid;
-	// long dst2=best_initial_dst;
-	long *x=(long*)malloc(sizeof(long)*(cities));
-	long *y=(long*)malloc(sizeof(long)*(cities));
+	// int blk,thrd;
+	// // unsigned long long *d_dst_tid;
+	// // long dst2=best_initial_dst;
+	// long *x=(long*)malloc(sizeof(long)*(cities));
+	// long *y=(long*)malloc(sizeof(long)*(cities));
 
-	start1 = clock();
-	count = 1;
-	// unsigned long long dst_tid = (((long)dst2+1) << 32) -1;
-	long itr=floor(cities/2);
-	int nx, ny;
-	if(cities <= 32)
-	{
-		blk = 1 ;
-		nx = cities;
-		ny = cities;
-	}
-	else
-	{
-		blk = (cities - 1) / 32 + 1;
-		nx = 32;
-		ny = 32;
-	}
-	dim3 thrds (nx,ny);
-	dim3 blks (blk,blk);
+	// start1 = clock();
+	// count = 1;
+	// // unsigned long long dst_tid = (((long)dst2+1) << 32) -1;
+	// long itr=floor(cities/2);
+	// int nx, ny;
+	// if(cities <= 32)
+	// {
+	// 	blk = 1 ;
+	// 	nx = cities;
+	// 	ny = cities;
+	// }
+	// else
+	// {
+	// 	blk = (cities - 1) / 32 + 1;
+	// 	nx = 32;
+	// 	ny = 32;
+	// }
+	// dim3 thrds (nx,ny);
+	// dim3 blks (blk,blk);
 
-	unsigned long long *dtid=(unsigned long long*)malloc(sizeof(unsigned long long)*(cities));
-	long *tid=(long*)malloc(sizeof(long)*(cities));	
-	long *d=(long*)malloc(sizeof(long)*(cities));
-	long min_d=LONG_MAX;
-
-
-	// if(cudaSuccess!=cudaMalloc((void**)&d_dst_tid,sizeof(unsigned long long)))
-	// printf("\nCan't allocate memory for dst_tid on GPU");
-    // 	if(cudaSuccess!=cudaMemcpy(d_dst_tid,&dst_tid,sizeof(unsigned long long),cudaMemcpyHostToDevice))
-	// printf("\nCan't transfer dst_tid on GPU");
-	// if(cudaSuccess!=cudaMemcpy(d_posx,px,sizeof(float)*cities,cudaMemcpyHostToDevice))
-	// printf("\nCan't transfer px on GPU");
-	// if(cudaSuccess!=cudaMemcpy(d_posy,py,sizeof(float)*cities,cudaMemcpyHostToDevice))
-	// printf("\nCan't transfer py on GPU");
+	// unsigned long long *dtid=(unsigned long long*)malloc(sizeof(unsigned long long)*(cities));
+	// long *tid=(long*)malloc(sizeof(long)*(cities));	
+	// long *d=(long*)malloc(sizeof(long)*(cities));
+	// long min_d=LONG_MAX;
 
 
-	blk=((cities*(cities-1)-1)/1024+1);
-	if(cities*(cities-1)<1024)
-	{
-		thrd=cities*(cities-1);
-	}
-	else{
-		thrd=1024;
-	}
+	// // if(cudaSuccess!=cudaMalloc((void**)&d_dst_tid,sizeof(unsigned long long)))
+	// // printf("\nCan't allocate memory for dst_tid on GPU");
+    // // 	if(cudaSuccess!=cudaMemcpy(d_dst_tid,&dst_tid,sizeof(unsigned long long),cudaMemcpyHostToDevice))
+	// // printf("\nCan't transfer dst_tid on GPU");
+	// // if(cudaSuccess!=cudaMemcpy(d_posx,px,sizeof(float)*cities,cudaMemcpyHostToDevice))
+	// // printf("\nCan't transfer px on GPU");
+	// // if(cudaSuccess!=cudaMemcpy(d_posy,py,sizeof(float)*cities,cudaMemcpyHostToDevice))
+	// // printf("\nCan't transfer py on GPU");
+
+
+	// blk=((cities*(cities-1)-1)/1024+1);
+	// if(cities*(cities-1)<1024)
+	// {
+	// 	thrd=cities*(cities-1);
+	// }
+	// else{
+	// 	thrd=1024;
+	// }
 	
 	
 	
 	
-	tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
+	// tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
 	
-	if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
-	printf("\nCan't transfer minimal dtid to CPU");
+	// if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
+	// printf("\nCan't transfer minimal dtid to CPU");
 
 
-	for(int itr=0;itr<cities;itr++)
-	{
-		d[itr] = dtid[itr] >> 32;
-		if(d[itr]<min_d)
-		{
-			min_d=d[itr];
-		}
-	}
+	// for(int itr=0;itr<cities;itr++)
+	// {
+	// 	d[itr] = dtid[itr] >> 32;
+	// 	if(d[itr]<min_d)
+	// 	{
+	// 		min_d=d[itr];
+	// 	}
+	// }
 	
 	
-	while( min_d < least_dst )
-	{
-		least_dst=min_d;
-		for(int itr=0;itr<cities;itr++)
-		{
-			tid[itr] = dtid[itr] & ((1ull<<32)-1);
-			x[itr]=cities-2-floor((sqrt(8*(sol-tid[itr]-1)+1)-1)/2);
-			y[itr]=tid[itr]-x[itr]*(cities-1)+(x[itr]*(x[itr]+1)/2)+1;
-			twoOpt(x[itr],y[itr],px+(cities*itr),py+(cities*itr));
-			if(cudaSuccess!=cudaMemcpy(d_px+(itr*cities),px+(cities*itr),sizeof(float)*cities,cudaMemcpyHostToDevice))
-			printf("\nCan't transfer px on GPU");
-			if(cudaSuccess!=cudaMemcpy(d_py+(itr*cities),py+(cities*itr),sizeof(float)*cities,cudaMemcpyHostToDevice))
-			printf("\nCan't transfer py on GPU");
-			// unsigned long long dst_tid = (((long)least_dst+1) << 32) -1;
-			// if(cudaSuccess!=cudaMemcpy(d_dst_tid[itr],&dst_tid,sizeof(unsigned long long),cudaMemcpyHostToDevice))
-			// printf("\nCan't transfer dst_tid on GPU");
-		} 
+	// while( min_d < least_dst )
+	// {
+	// 	least_dst=min_d;
+	// 	for(int itr=0;itr<cities;itr++)
+	// 	{
+	// 		tid[itr] = dtid[itr] & ((1ull<<32)-1);
+	// 		x[itr]=cities-2-floor((sqrt(8*(sol-tid[itr]-1)+1)-1)/2);
+	// 		y[itr]=tid[itr]-x[itr]*(cities-1)+(x[itr]*(x[itr]+1)/2)+1;
+	// 		twoOpt(x[itr],y[itr],px+(cities*itr),py+(cities*itr));
+	// 		if(cudaSuccess!=cudaMemcpy(d_px+(itr*cities),px+(cities*itr),sizeof(float)*cities,cudaMemcpyHostToDevice))
+	// 		printf("\nCan't transfer px on GPU");
+	// 		if(cudaSuccess!=cudaMemcpy(d_py+(itr*cities),py+(cities*itr),sizeof(float)*cities,cudaMemcpyHostToDevice))
+	// 		printf("\nCan't transfer py on GPU");
+	// 		// unsigned long long dst_tid = (((long)least_dst+1) << 32) -1;
+	// 		// if(cudaSuccess!=cudaMemcpy(d_dst_tid[itr],&dst_tid,sizeof(unsigned long long),cudaMemcpyHostToDevice))
+	// 		// printf("\nCan't transfer dst_tid on GPU");
+	// 	} 
 
-		tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
+	// 	tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
 
-		if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
-		printf("\nCan't transfer minimal dtid to CPU");
-
-
-		for(int itr=0;itr<cities;itr++)
-		{
-			d[itr] = dtid[itr] >> 32;
-			if(d[itr]<min_d)
-			{
-				min_d=d[itr];
-			}
-		}
-		count++;
-	}
+	// 	if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
+	// 	printf("\nCan't transfer minimal dtid to CPU");
 
 
-	printf("\n-------------------------------------------------------------------");
-	// printf("\nleast initial cost is %d",best_initial_dst);
-	printf("\nInitial solution time taken is %f",tm);
-	// printf("\ninitial start city is %d",best_start_city);
-	printf("\nMinimal distance found %ld\n",min_d);
-	printf("\nnumber of times hill climbed in minimal distance solution %d\n",count);
-	end1 = clock();
-	printf("\ntime : %f\n",((double) (end1 - start1)) / CLOCKS_PER_SEC);
+	// 	for(int itr=0;itr<cities;itr++)
+	// 	{
+	// 		d[itr] = dtid[itr] >> 32;
+	// 		if(d[itr]<min_d)
+	// 		{
+	// 			min_d=d[itr];
+	// 		}
+	// 	}
+	// 	count++;
+	// }
+
+
+	// printf("\n-------------------------------------------------------------------");
+	// // printf("\nleast initial cost is %d",best_initial_dst);
+	// printf("\nInitial solution time taken is %f",tm);
+	// // printf("\ninitial start city is %d",best_start_city);
+	// printf("\nMinimal distance found %ld\n",min_d);
+	// printf("\nnumber of times hill climbed in minimal distance solution %d\n",count);
+	// end1 = clock();
+	// printf("\ntime : %f\n",((double) (end1 - start1)) / CLOCKS_PER_SEC);
 
 	free(posx);
 	free(posy);
