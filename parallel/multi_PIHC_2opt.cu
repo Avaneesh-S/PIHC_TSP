@@ -378,16 +378,6 @@ int main(int argc, char *argv[])
 	long min_d=LONG_MAX;
 
 
-	// if(cudaSuccess!=cudaMalloc((void**)&d_dst_tid,sizeof(unsigned long long)))
-	// printf("\nCan't allocate memory for dst_tid on GPU");
-    // 	if(cudaSuccess!=cudaMemcpy(d_dst_tid,&dst_tid,sizeof(unsigned long long),cudaMemcpyHostToDevice))
-	// printf("\nCan't transfer dst_tid on GPU");
-	// if(cudaSuccess!=cudaMemcpy(d_posx,px,sizeof(float)*cities,cudaMemcpyHostToDevice))
-	// printf("\nCan't transfer px on GPU");
-	// if(cudaSuccess!=cudaMemcpy(d_posy,py,sizeof(float)*cities,cudaMemcpyHostToDevice))
-	// printf("\nCan't transfer py on GPU");
-
-
 	blk=((cities*(cities-1)-1)/1024+1);
 	thrd=1024;
 	
@@ -400,6 +390,7 @@ int main(int argc, char *argv[])
 	printf("\nCan't transfer minimal dtid to CPU");
 
 	printf("\n tpr finished running");
+	printf("hello");
 
 	// for(int itr=0;itr<cities;itr++)
 	// {
