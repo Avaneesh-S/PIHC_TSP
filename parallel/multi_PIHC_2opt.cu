@@ -386,7 +386,7 @@ int main(int argc, char *argv[])
 	
 	tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
 	
-	if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long)*cities,cudaMemcpyDeviceToHost))
+	if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
 	printf("\nCan't transfer minimal dtid to CPU");
 
 	printf("\n tpr finished running");
