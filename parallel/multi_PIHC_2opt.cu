@@ -326,6 +326,10 @@ int main(int argc, char *argv[])
 	}
 
 	printf("\nNN running complete");
+	free(posx);
+	free(posy);
+
+	free(dst_host);
 
 	// int *req_r=r_device+best_start_city*cities; //move only the route which corresponds to minimum initial dst
 
@@ -456,10 +460,14 @@ int main(int argc, char *argv[])
 	// end1 = clock();
 	// printf("\ntime : %f\n",((double) (end1 - start1)) / CLOCKS_PER_SEC);
 
-	free(posx);
-	free(posy);
+	// free(posx);
+	// free(posy);
 
-	free(dst_host);
+	// free(dst_host);
+	free(x);
+	free(y);
+	free(tid);
+	free(d);
 
 	cudaFree(d_posx);
 	cudaFree(d_posy);
