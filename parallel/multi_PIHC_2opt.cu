@@ -400,6 +400,7 @@ int main(int argc, char *argv[])
 	for(int itr=0;itr<cities;itr++)
 	{
 		// d[itr] = dtid[itr] >> 32;
+		printf("hello");
 		printf("\n %llu",dtid[itr]);
 		// if(d[itr]<min_d)
 		// {
