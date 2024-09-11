@@ -327,20 +327,20 @@ int main(int argc, char *argv[])
 
 	printf("NN running complete");
 
-	// // int *req_r=r_device+best_start_city*cities; //move only the route which corresponds to minimum initial dst
+	// int *req_r=r_device+best_start_city*cities; //move only the route which corresponds to minimum initial dst
 
-	// // if(cudaSuccess!=cudaMemcpy(r,req_r,sizeof(int)*cities,cudaMemcpyDeviceToHost))
-	// // printf("\nCan't transfer best route values back to CPU");
+	// if(cudaSuccess!=cudaMemcpy(r,req_r,sizeof(int)*cities,cudaMemcpyDeviceToHost))
+	// printf("\nCan't transfer best route values back to CPU");
 
-    // setCoord<<<(cities-1/1024)+1,minn(cities,1024)>>>(r_device,d_posx,d_posy,d_px,d_py,cities);
+    setCoord<<<(cities-1/1024)+1,minn(cities,1024)>>>(r_device,d_posx,d_posy,d_px,d_py,cities);
 
-	// if(cudaSuccess!=cudaMemcpy(px,d_px,sizeof(float)*(cities*cities),cudaMemcpyDeviceToHost))
-	// printf("\nCan't transfer px values back to CPU");
+	if(cudaSuccess!=cudaMemcpy(px,d_px,sizeof(float)*(cities*cities),cudaMemcpyDeviceToHost))
+	printf("\nCan't transfer px values back to CPU");
 
-	// if(cudaSuccess!=cudaMemcpy(py,d_py,sizeof(float)*(cities*cities),cudaMemcpyDeviceToHost))
-	// printf("\nCan't transfer py values back to CPU");
+	if(cudaSuccess!=cudaMemcpy(py,d_py,sizeof(float)*(cities*cities),cudaMemcpyDeviceToHost))
+	printf("\nCan't transfer py values back to CPU");
 
-	// printf("initial solution part done");
+	printf("initial solution part done");
 
 	// int blk,thrd;
 	// // unsigned long long *d_dst_tid;
