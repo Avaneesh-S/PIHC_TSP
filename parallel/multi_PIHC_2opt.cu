@@ -152,28 +152,28 @@ int minn(int a,int b)
 __global__ void tsp_tpr(float *pox,float *poy,long *initcost,unsigned long long *dst_tid,long cit)
 {
 
-	// long id,j;
+	long id,j;
 	long i=threadIdx.x+blockIdx.x*blockDim.x;
-	// register long change,mincost=initcost[i%cit],cost;
-	// if(i < cit*(cit-1))
-	// {
-	// 	long limit = ((long)(i/cit)*cit)+cit;
-	// 	for(j=i+1;j<limit;j++)
-	// 	{
-	// 		change = 0; cost=initcost[i%cit];
-	// 		change=distD(i,j,pox,poy)+distD((i+1)%(cit*cit),(j+1)%(cit*cit),pox,poy)-distD(i,(i+1)%(cit*cit),pox,poy)-distD(j,(j+1)%(cit*cit),pox,poy);
-	// 		cost+=change;	
-	// 		if(cost < mincost)
-	// 		{
-	// 			mincost = cost;
-	// 			id = i * (cit-1)+(j-1)-i*(i+1)/2;	
-	// 		}	 
+	register long change,mincost=initcost[i%cit],cost;
+	if(i < cit*(cit-1))
+	{
+		long limit = ((long)(i/cit)*cit)+cit;
+		for(j=i+1;j<limit;j++)
+		{
+			change = 0; cost=initcost[i%cit];
+			change=distD(i,j,pox,poy)+distD((i+1)%(cit*cit),(j+1)%(cit*cit),pox,poy)-distD(i,(i+1)%(cit*cit),pox,poy)-distD(j,(j+1)%(cit*cit),pox,poy);
+			cost+=change;	
+			if(cost < mincost)
+			{
+				mincost = cost;
+				id = i * (cit-1)+(j-1)-i*(i+1)/2;	
+			}	 
 
-	// 	}
-	// 	// if(mincost < initcost[i%cit])
-	// 	// 	 atomicMin(dst_tid+(i%cit), ((unsigned long long)mincost << 32) | id);
+		}
+		if(mincost < initcost[i%cit])
+			 atomicMin(dst_tid+(i%cit), ((unsigned long long)mincost << 32) | id);
 
-	// }
+	}
 	
 }
 
@@ -397,15 +397,15 @@ int main(int argc, char *argv[])
 
 	printf("\n tpr finished running");
 
-	for(int itr=0;itr<cities;itr++)
-	{
-		d[itr] = dtid[itr] >> 32;
-		printf("\n %ld",d[itr]);
-		if(d[itr]<min_d)
-		{
-			min_d=d[itr];
-		}
-	}
+	// for(int itr=0;itr<cities;itr++)
+	// {
+	// 	d[itr] = dtid[itr] >> 32;
+	// 	printf("\n %ld",d[itr]);
+	// 	if(d[itr]<min_d)
+	// 	{
+	// 		min_d=d[itr];
+	// 	}
+	// }
 
 	printf("\n first tpr call complete moved min d");
 	
