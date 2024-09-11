@@ -152,7 +152,7 @@ int minn(int a,int b)
 __global__ void tsp_tpr(float *pox,float *poy,long *initcost,unsigned long long *dst_tid,long cit)
 {
 
-	long id,j;
+	// long id,j;
 	long i=threadIdx.x+blockIdx.x*blockDim.x;
 	// register long change,mincost=initcost[i%cit],cost;
 	// if(i < cit*(cit-1))
@@ -390,11 +390,12 @@ int main(int argc, char *argv[])
 	
 	
 	
-	// tsp_tpr<<<1,1>>>(d_px,d_py,dst,d_dst_tid,cities);
+	tsp_tpr<<<1,10>>>(d_px,d_py,dst,d_dst_tid,cities);
 	
-	// if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
-	// printf("\nCan't transfer minimal dtid to CPU");
+	if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
+	printf("\nCan't transfer minimal dtid to CPU");
 
+	printf("\n tpr finished running");
 
 	// for(int itr=0;itr<cities;itr++)
 	// {
