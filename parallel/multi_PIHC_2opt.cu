@@ -342,74 +342,76 @@ int main(int argc, char *argv[])
 
 	printf("initial solution part done");
 
-	// int blk,thrd;
-	// // unsigned long long *d_dst_tid;
-	// // long dst2=best_initial_dst;
-	// long *x=(long*)malloc(sizeof(long)*(cities));
-	// long *y=(long*)malloc(sizeof(long)*(cities));
+	int blk,thrd;
+	// unsigned long long *d_dst_tid;
+	// long dst2=best_initial_dst;
+	long *x=(long*)malloc(sizeof(long)*(cities));
+	long *y=(long*)malloc(sizeof(long)*(cities));
 
-	// start1 = clock();
-	// count = 1;
-	// // unsigned long long dst_tid = (((long)dst2+1) << 32) -1;
-	// long itr=floor(cities/2);
-	// int nx, ny;
-	// if(cities <= 32)
-	// {
-	// 	blk = 1 ;
-	// 	nx = cities;
-	// 	ny = cities;
-	// }
-	// else
-	// {
-	// 	blk = (cities - 1) / 32 + 1;
-	// 	nx = 32;
-	// 	ny = 32;
-	// }
-	// dim3 thrds (nx,ny);
-	// dim3 blks (blk,blk);
+	start1 = clock();
+	count = 1;
+	// unsigned long long dst_tid = (((long)dst2+1) << 32) -1;
+	long itr=floor(cities/2);
+	int nx, ny;
+	if(cities <= 32)
+	{
+		blk = 1 ;
+		nx = cities;
+		ny = cities;
+	}
+	else
+	{
+		blk = (cities - 1) / 32 + 1;
+		nx = 32;
+		ny = 32;
+	}
+	dim3 thrds (nx,ny);
+	dim3 blks (blk,blk);
 
-	// unsigned long long *dtid=(unsigned long long*)malloc(sizeof(unsigned long long)*(cities));
-	// long *tid=(long*)malloc(sizeof(long)*(cities));	
-	// long *d=(long*)malloc(sizeof(long)*(cities));
-	// long min_d=LONG_MAX;
-
-
-	// // if(cudaSuccess!=cudaMalloc((void**)&d_dst_tid,sizeof(unsigned long long)))
-	// // printf("\nCan't allocate memory for dst_tid on GPU");
-    // // 	if(cudaSuccess!=cudaMemcpy(d_dst_tid,&dst_tid,sizeof(unsigned long long),cudaMemcpyHostToDevice))
-	// // printf("\nCan't transfer dst_tid on GPU");
-	// // if(cudaSuccess!=cudaMemcpy(d_posx,px,sizeof(float)*cities,cudaMemcpyHostToDevice))
-	// // printf("\nCan't transfer px on GPU");
-	// // if(cudaSuccess!=cudaMemcpy(d_posy,py,sizeof(float)*cities,cudaMemcpyHostToDevice))
-	// // printf("\nCan't transfer py on GPU");
+	unsigned long long *dtid=(unsigned long long*)malloc(sizeof(unsigned long long)*(cities));
+	long *tid=(long*)malloc(sizeof(long)*(cities));	
+	long *d=(long*)malloc(sizeof(long)*(cities));
+	long min_d=LONG_MAX;
 
 
-	// blk=((cities*(cities-1)-1)/1024+1);
-	// if(cities*(cities-1)<1024)
-	// {
-	// 	thrd=cities*(cities-1);
-	// }
-	// else{
-	// 	thrd=1024;
-	// }
+	// if(cudaSuccess!=cudaMalloc((void**)&d_dst_tid,sizeof(unsigned long long)))
+	// printf("\nCan't allocate memory for dst_tid on GPU");
+    // 	if(cudaSuccess!=cudaMemcpy(d_dst_tid,&dst_tid,sizeof(unsigned long long),cudaMemcpyHostToDevice))
+	// printf("\nCan't transfer dst_tid on GPU");
+	// if(cudaSuccess!=cudaMemcpy(d_posx,px,sizeof(float)*cities,cudaMemcpyHostToDevice))
+	// printf("\nCan't transfer px on GPU");
+	// if(cudaSuccess!=cudaMemcpy(d_posy,py,sizeof(float)*cities,cudaMemcpyHostToDevice))
+	// printf("\nCan't transfer py on GPU");
+
+
+	blk=((cities*(cities-1)-1)/1024+1);
+	if(cities*(cities-1)<1024)
+	{
+		thrd=cities*(cities-1);
+	}
+	else{
+		thrd=1024;
+	}
 	
 	
 	
 	
-	// tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
+	tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
 	
-	// if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
-	// printf("\nCan't transfer minimal dtid to CPU");
+	if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
+	printf("\nCan't transfer minimal dtid to CPU");
 
 
-	// for(int itr=0;itr<cities;itr++)
-	// {
-	// 	d[itr] = dtid[itr] >> 32;
-	// 	if(d[itr]<min_d)
-	// 	{
-	// 		min_d=d[itr];
-	// 	}
-	// }
+	for(int itr=0;itr<cities;itr++)
+	{
+		d[itr] = dtid[itr] >> 32;
+		if(d[itr]<min_d)
+		{
+			min_d=d[itr];
+		}
+	}
+
+	printf("\n first tpr call complete moved min d");
 	
 	
 	// while( min_d < least_dst )
