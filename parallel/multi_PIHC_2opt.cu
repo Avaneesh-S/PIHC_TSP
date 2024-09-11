@@ -456,33 +456,18 @@ int main(int argc, char *argv[])
 	// end1 = clock();
 	// printf("\ntime : %f\n",((double) (end1 - start1)) / CLOCKS_PER_SEC);
 
-	// free(posx);
-	// free(posy);
-	// free(px);
-	// free(py);
-	// free(x);
-	// free(y);
-	// free(d);
-
-	// free(dst_host);
-	// free(dtid);
-
-	// cudaFree(d_posx);
-	// cudaFree(d_posy);
-	// cudaFree(dst);
-	// cudaFree(visited);
-	// cudaFree(r_device);
-	// cudaFree(d_dst_tid);
-	// cudaFree(d_px);
-	// cudaFree(d_py);
-	cudaFree(d_posy);
-	cudaFree(d_posx);
-	cudaFree(d_dst_tid);
 	free(posx);
 	free(posy);
-	free(px);
-	free(py);
-	free(r_device);
+
+	free(dst_host);
+
+	cudaFree(d_posx);
+	cudaFree(d_posy);
+	cudaFree(dst);
+	cudaFree(visited);
+	cudaFree(r_device);
+	cudaFree(d_dst_tid);
+	
 	return 0;
 }
 
