@@ -333,6 +333,7 @@ int main(int argc, char *argv[])
 	// printf("\nCan't transfer best route values back to CPU");
 
     setCoord<<<(cities-1/1024)+1,minn(cities,1024)>>>(r_device,d_posx,d_posy,d_px,d_py,cities);
+	cudaDeviceSynchronize();
 
 	if(cudaSuccess!=cudaMemcpy(px,d_px,sizeof(float)*(cities*cities),cudaMemcpyDeviceToHost))
 	printf("\nCan't transfer px values back to CPU");
@@ -391,6 +392,7 @@ int main(int argc, char *argv[])
 	
 	
 	tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
+	cudaDeviceSynchronize();
 	
 	if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long)*cities,cudaMemcpyDeviceToHost))
 	printf("\nCan't transfer minimal dtid to CPU");
