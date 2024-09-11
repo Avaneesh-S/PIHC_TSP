@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
 	// printf("\nCan't transfer py on GPU");
 
 
-	blk=((cities-1)/1024+1)*cities;
+	blk=((cities*(cities-1)-1)/1024+1);
 	if(cities*(cities-1)<1024)
 	{
 		thrd=cities*(cities-1);
