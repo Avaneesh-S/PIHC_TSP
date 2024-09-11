@@ -349,8 +349,6 @@ int main(int argc, char *argv[])
 	int blk,thrd;
 	// unsigned long long *d_dst_tid;
 	// long dst2=best_initial_dst;
-	long *x=(long*)malloc(sizeof(long)*(cities));
-	long *y=(long*)malloc(sizeof(long)*(cities));
 
 	start1 = clock();
 	count = 1;
@@ -386,11 +384,11 @@ int main(int argc, char *argv[])
 	
 	tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
 	
-	if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
+	if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long)*cities,cudaMemcpyDeviceToHost))
 	printf("\nCan't transfer minimal dtid to CPU");
 
-	printf("\n tpr finished running");
-	printf("hello");
+	printf("\ntpr finished running");
+	printf("\nhello");
 
 	// for(int itr=0;itr<cities;itr++)
 	// {
@@ -404,6 +402,8 @@ int main(int argc, char *argv[])
 	// }
 
 	printf("\n first tpr call complete moved min d");
+	long *x=(long*)malloc(sizeof(long)*(cities));
+	long *y=(long*)malloc(sizeof(long)*(cities));
 	
 	
 	// while( min_d < least_dst )
