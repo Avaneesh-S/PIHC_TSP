@@ -166,7 +166,7 @@ __global__ void tsp_tpr(float *pox,float *poy,long *initcost,unsigned long long 
 			if(cost < mincost)
 			{
 				mincost = cost;
-				id = i * (cit-1)+(j-1)-i*(i+1)/2;	
+				id = i%cit * (cit-1)+(j%cit-1)-i%cit*(i%cit+1)/2;	
 			}	 
 
 		}
@@ -384,21 +384,18 @@ int main(int argc, char *argv[])
 	
 	tsp_tpr<<<blk,thrd>>>(d_px,d_py,dst,d_dst_tid,cities);
 	
-	if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long)*cities,cudaMemcpyDeviceToHost))
+	if(cudaSuccess!=cudaMemcpy(dtid,d_dst_tid,sizeof(unsigned long long)*cities,cudaMemcpyDeviceToHost))
 	printf("\nCan't transfer minimal dtid to CPU");
 
 	printf("\ntpr finished running");
-	printf("\nhello");
 
 	for(int itr=0;itr<cities;itr++)
 	{
-		// d[itr] = dtid[itr] >> 32;
-		printf("hello");
-		printf("\n %llu",dtid[itr]);
-		// if(d[itr]<min_d)
-		// {
-		// 	min_d=d[itr];
-		// }
+		d[itr] = dtid[itr] >> 32;
+		if(d[itr]<min_d)
+		{
+			min_d=d[itr];
+		}
 	}
 
 	printf("\n first tpr call complete moved min d");
