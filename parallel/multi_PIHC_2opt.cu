@@ -325,7 +325,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	printf("NN running complete");
+	printf("\nNN running complete");
 
 	// int *req_r=r_device+best_start_city*cities; //move only the route which corresponds to minimum initial dst
 
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
 	if(cudaSuccess!=cudaMemcpy(py,d_py,sizeof(float)*(cities*cities),cudaMemcpyDeviceToHost))
 	printf("\nCan't transfer py values back to CPU");
 
-	printf("initial solution part done");
+	printf("\ninitial solution part done");
 
 	int blk,thrd;
 	// unsigned long long *d_dst_tid;
@@ -390,22 +390,22 @@ int main(int argc, char *argv[])
 	
 	
 	
-	tsp_tpr<<<1,1>>>(d_px,d_py,dst,d_dst_tid,cities);
+	// tsp_tpr<<<1,1>>>(d_px,d_py,dst,d_dst_tid,cities);
 	
-	if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
-	printf("\nCan't transfer minimal dtid to CPU");
+	// if(cudaSuccess!=cudaMemcpy(&dtid,d_dst_tid,sizeof(unsigned long long),cudaMemcpyDeviceToHost))
+	// printf("\nCan't transfer minimal dtid to CPU");
 
 
-	for(int itr=0;itr<cities;itr++)
-	{
-		d[itr] = dtid[itr] >> 32;
-		if(d[itr]<min_d)
-		{
-			min_d=d[itr];
-		}
-	}
+	// for(int itr=0;itr<cities;itr++)
+	// {
+	// 	d[itr] = dtid[itr] >> 32;
+	// 	if(d[itr]<min_d)
+	// 	{
+	// 		min_d=d[itr];
+	// 	}
+	// }
 
-	printf("\n first tpr call complete moved min d");
+	// printf("\n first tpr call complete moved min d");
 	
 	
 	// while( min_d < least_dst )
