@@ -154,7 +154,7 @@ __global__ void tsp_tpr(float *pox,float *poy,long *initcost,unsigned long long 
 
 	long id,j;
 	long i=threadIdx.x+blockIdx.x*blockDim.x;
-	register long change,mincost=initcost[i%cit],cost;
+	// register long change,mincost=initcost[i%cit],cost;
 	// if(i < cit*(cit-1))
 	// {
 	// 	long limit = ((long)(i/cit)*cit)+cit;
