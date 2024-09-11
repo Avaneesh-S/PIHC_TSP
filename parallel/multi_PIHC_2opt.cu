@@ -385,13 +385,7 @@ int main(int argc, char *argv[])
 
 
 	blk=((cities*(cities-1)-1)/1024+1);
-	if(cities*(cities-1)<1024)
-	{
-		thrd=cities*(cities-1);
-	}
-	else{
-		thrd=1024;
-	}
+	thrd=1024;
 	
 	
 	
