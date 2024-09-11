@@ -170,8 +170,8 @@ __global__ void tsp_tpr(float *pox,float *poy,long *initcost,unsigned long long 
 			}	 
 
 		}
-		if(mincost < initcost[i%cit])
-			 atomicMin(dst_tid+(i%cit), ((unsigned long long)mincost << 32) | id);
+		// if(mincost < initcost[i%cit])
+		// 	 atomicMin(dst_tid+(i%cit), ((unsigned long long)mincost << 32) | id);
 
 	}
 	
