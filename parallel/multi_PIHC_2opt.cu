@@ -397,16 +397,16 @@ int main(int argc, char *argv[])
 
 	printf("\n tpr finished running");
 
-	for(int itr=0;itr<cities;itr++)
-	{
-		// d[itr] = dtid[itr] >> 32;
-		printf("hello");
-		printf("\n %llu",dtid[itr]);
-		// if(d[itr]<min_d)
-		// {
-		// 	min_d=d[itr];
-		// }
-	}
+	// for(int itr=0;itr<cities;itr++)
+	// {
+	// 	// d[itr] = dtid[itr] >> 32;
+	// 	printf("hello");
+	// 	printf("\n %llu",dtid[itr]);
+	// 	// if(d[itr]<min_d)
+	// 	// {
+	// 	// 	min_d=d[itr];
+	// 	// }
+	// }
 
 	printf("\n first tpr call complete moved min d");
 	
