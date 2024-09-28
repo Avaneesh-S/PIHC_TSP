@@ -6,8 +6,8 @@
 #include <ctype.h>
 #include <assert.h>
 
-/*code to perform 2opt on every initial solution, that is construct initial solution with every city as start city and run 2 opt on 
-all in parallel*/
+/*code to perform 2opt on every initial solution, that is construct initial solution with every city as start city and run 2 opt 
+sequentially on all initial solution. 2opt itself is done in parallel for each initial solution*/
 
 /* Euclidean distance calculation */
 __host__ __device__ long distD(int i,int j,float *x,float*y)
